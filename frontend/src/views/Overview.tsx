@@ -2,13 +2,26 @@ import { useEffect, useState } from 'react'
 
 import { fetchJson } from '@/api/client'
 
+type OverviewModule = {
+  name: string
+  label?: string
+  created: number
+  pending: number
+  abnormal: number
+  dedup?: Record<string, number>
+}
+
 type Overview = {
   cards: { label: string; value: number }[]
-  modules: { name: string; created: number; pending: number; abnormal: number }[]
+  modules: OverviewModule[]
 }
 
 const fallbackCards = [{"label": "业务模块", "value": 0}, {"label": "今日新增", "value": 0}]
-const fallbackModules = [{"name": "连接器管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "代理池管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "深度爬取", "created": 0, "pending": 0, "abnormal": 0}, {"name": "JS渲染采集", "created": 0, "pending": 0, "abnormal": 0}, {"name": "字段解析器", "created": 0, "pending": 0, "abnormal": 0}, {"name": "数据去噪", "created": 0, "pending": 0, "abnormal": 0}, {"name": "格式转换", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集去重", "created": 0, "pending": 0, "abnormal": 0}, {"name": "动态限速", "created": 0, "pending": 0, "abnormal": 0}, {"name": "验证码处理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集监控", "created": 0, "pending": 0, "abnormal": 0}, {"name": "数据分发", "created": 0, "pending": 0, "abnormal": 0}, {"name": "种子管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "站点地图", "created": 0, "pending": 0, "abnormal": 0}, {"name": "Cookie管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集器健康", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集快照", "created": 0, "pending": 0, "abnormal": 0}, {"name": "操作审计", "created": 0, "pending": 0, "abnormal": 0}]
+const fallbackModules = [{"name": "连接器管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "代理池管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "深度爬取", "created": 0, "pending": 0, "abnormal": 0}, {"name": "JS渲染采集", "created": 0, "pending": 0, "abnormal": 0}, {"name": "字段解析器", "created": 0, "pending": 0, "abnormal": 0}, {"name": "数据去噪", "created": 0, "pending": 0, "abnormal": 0}, {"name": "格式转换", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集去重", "created": 0, "pending": 0, "abnormal": 0}, {"name": "去重索引重建", "created": 0, "pending": 0, "abnormal": 0}, {"name": "动态限速", "created": 0, "pending": 0, "abnormal": 0}, {"name": "验证码处理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集监控", "created": 0, "pending": 0, "abnormal": 0}, {"name": "数据分发", "created": 0, "pending": 0, "abnormal": 0}, {"name": "种子管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "站点地图", "created": 0, "pending": 0, "abnormal": 0}, {"name": "Cookie管理", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集器健康", "created": 0, "pending": 0, "abnormal": 0}, {"name": "采集快照", "created": 0, "pending": 0, "abnormal": 0}, {"name": "操作审计", "created": 0, "pending": 0, "abnormal": 0}]
+
+function formatDedup(dedup: Record<string, number>): string {
+  return Object.entries(dedup).map(([label, value]) => `${label} ${value}`).join(' · ')
+}
 
 export default function Overview() {
   const [cards, setCards] = useState<Overview['cards']>(fallbackCards)
@@ -41,15 +54,16 @@ export default function Overview() {
       </div>
       <table className="data-table">
         <thead>
-          <tr><th>业务模块</th><th>今日新增</th><th>待处理</th><th>异常量</th></tr>
+          <tr><th>业务模块</th><th>今日新增</th><th>待处理</th><th>异常量</th><th>去重结果</th></tr>
         </thead>
         <tbody>
           {moduleRows.map((row) => (
             <tr key={row.name}>
-              <td>{row.name}</td>
+              <td>{row.label ?? row.name}</td>
               <td>{row.created}</td>
               <td>{row.pending}</td>
               <td>{row.abnormal}</td>
+              <td>{row.dedup ? formatDedup(row.dedup) : '—'}</td>
             </tr>
           ))}
         </tbody>

@@ -8,6 +8,35 @@ from typing import Any
 
 from app.seed import SEED_ROWS
 
+# 看板模块顺序：与前端导航保持一致，去重索引重建紧跟采集去重。
+MODULE_ORDER = [
+    "connector", "proxypool", "deepcrawl", "jsrender", "parser", "dataclean",
+    "formatter", "dedupengine", "deduprebuild", "throttle", "captcha", "monitor",
+    "exporttask", "seedmgr", "sitemap", "cookiejar", "healthcheck", "snapshot",
+    "audittrail",
+]
+MODULE_LABELS = {
+    "connector": "连接器管理",
+    "proxypool": "代理池管理",
+    "deepcrawl": "深度爬取",
+    "jsrender": "JS渲染采集",
+    "parser": "字段解析器",
+    "dataclean": "数据去噪",
+    "formatter": "格式转换",
+    "dedupengine": "采集去重",
+    "deduprebuild": "去重索引重建",
+    "throttle": "动态限速",
+    "captcha": "验证码处理",
+    "monitor": "采集监控",
+    "exporttask": "数据分发",
+    "seedmgr": "种子管理",
+    "sitemap": "站点地图",
+    "cookiejar": "Cookie管理",
+    "healthcheck": "采集器健康",
+    "snapshot": "采集快照",
+    "audittrail": "操作审计",
+}
+
 
 class Store:
     def __init__(self) -> None:
@@ -28,15 +57,27 @@ class Store:
         return None
 
     def overview(self) -> dict[str, object]:
+        # 看板按导航相同顺序排列；未登记顺序的模块排在最后。
+        ordered = [name for name in MODULE_ORDER if name in self._tables]
+        ordered += sorted(name for name in self._tables if name not in MODULE_ORDER)
         modules: list[dict[str, object]] = []
-        for name in self.module_names():
+        for name in ordered:
             rows = self.rows(name)
-            modules.append({
+            item: dict[str, object] = {
                 "name": name,
+                "label": MODULE_LABELS.get(name, name),
                 "created": len(rows),
                 "pending": sum(1 for row in rows if row.get("pending")),
                 "abnormal": sum(1 for row in rows if row.get("abnormal")),
-            })
+            }
+            if name == "deduprebuild":
+                # 概览中同步呈现去重结果：受影响批次、复用窗口与转历史批次。
+                item["dedup"] = {
+                    "受影响批次": sum(1 for row in rows if row.get("影响判定") == "受影响"),
+                    "复用窗口": sum(int(row.get("复用窗口") or 0) for row in rows),
+                    "转历史批次": sum(1 for row in rows if row.get("status") == "已转历史"),
+                }
+            modules.append(item)
         cards = [
             {"label": "业务模块", "value": len(modules)},
             {"label": "今日新增", "value": sum(int(item["created"]) for item in modules)},

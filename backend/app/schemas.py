@@ -125,6 +125,18 @@ class DedupengineEntry(BaseModel):
     field_6: str | None = None  # 跨批次去重
     field_7: str | None = None  # 相似度阈值
 
+class DeduprebuildEntry(BaseModel):
+    """去重索引重建明细结构。"""
+
+    field_0: str | None = None  # 批次编号
+    field_1: str | None = None  # 去噪规则
+    field_2: str | None = None  # 去重引擎
+    field_3: str | None = None  # 去重字段组
+    field_4: str | None = None  # 变化字段
+    field_5: str | None = None  # 影响判定
+    field_6: str | None = None  # 断点窗口
+    field_7: str | None = None  # 去重结果
+
 class ThrottleEntry(BaseModel):
     """限速规则明细结构。"""
 

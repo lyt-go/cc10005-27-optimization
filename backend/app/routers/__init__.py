@@ -14,6 +14,7 @@ from app.routers import parser as router_parser
 from app.routers import dataclean as router_dataclean
 from app.routers import formatter as router_formatter
 from app.routers import dedupengine as router_dedupengine
+from app.routers import deduprebuild as router_deduprebuild
 from app.routers import throttle as router_throttle
 from app.routers import captcha as router_captcha
 from app.routers import monitor as router_monitor
@@ -25,4 +26,4 @@ from app.routers import healthcheck as router_healthcheck
 from app.routers import snapshot as router_snapshot
 from app.routers import audittrail as router_audittrail
 
-ROUTERS = [router_connector, router_proxypool, router_deepcrawl, router_jsrender, router_parser, router_dataclean, router_formatter, router_dedupengine, router_throttle, router_captcha, router_monitor, router_exporttask, router_seedmgr, router_sitemap, router_cookiejar, router_healthcheck, router_snapshot, router_audittrail]
+ROUTERS = [router_connector, router_proxypool, router_deepcrawl, router_jsrender, router_parser, router_dataclean, router_formatter, router_dedupengine, router_deduprebuild, router_throttle, router_captcha, router_monitor, router_exporttask, router_seedmgr, router_sitemap, router_cookiejar, router_healthcheck, router_snapshot, router_audittrail]
